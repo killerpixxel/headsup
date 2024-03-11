@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HeadsUp</title>
+<style>
+  body {
+    font-family: 'Bloody', Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(to bottom, #8B0000, #000000);
+    color: white;
+  }
+  .heads-up, #countdown {
+    font-size: 4em; /* Increased font size for "HeadsUp" */
+    position: relative;
+    z-index: 1;
+    margin-bottom: 20px; /* Added space between "HeadsUp" and countdown */
+  }
+  .heads-up {
+    background: linear-gradient(to right, #FFD700, #8B0000);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: 1; /* Make sure the initial opacity is set to 1 */
+    transition: opacity 3s ease-out;
+  }
+  #countdown {
+    color: gold; /* Set countdown color to golden */
+    cursor: pointer; /* Set cursor to pointer for clickable effect */
+    opacity: 0; /* Initially hide */
+    transition: opacity 1s ease-in; /* Adding fade-in effect */
+  }
+  #countdown.visible {
+    opacity: 1;
+  }
+  .fade-in {
+    opacity: 1 !important; /* Ensure that fade-in class overrides other opacities */
+    transition: opacity 1s ease-in !important;
+  }
+  .stars {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: yellow;
+    animation: twinkle linear infinite;
+  }
+  @keyframes twinkle {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  .sun-moon {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: white;
+    border: 5px solid #FFD700;
+    z-index: 0;
+    animation: none; /* Disable default animation */
+    display: none; /* Initially hide */
+    top: 17%;
+    left: 17%;
+  }
+
+  /* Eyes styles */
+  .eye {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #f4f4f4;
+    border-radius: 50%;
+  }
+
+  .left-eye {
+    top: 35%;
+    left: 25%; /* Adjusted left eye position */
+  }
+
+  .right-eye {
+    top: 35%;
+    right: 25%; /* Adjusted right eye position */
+  }
+
+  /* Style for sparkles */
+  .sparkle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    animation: sparkleMove linear 1s infinite;
+  }
+
+  @keyframes sparkleMove {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-100px) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  /* Blinking animation */
+  .blink {
+    animation: blinkAnimation 0.3s linear forwards;
+  }
+
+  @keyframes blinkAnimation {
+    0%, 100% {
+      height: 20px; /* Closed eye */
+    }
+    50% {
+      height: 0; /* Open eye */
+    }
+  }
+</style>
+</head>
+<body class="day">
+<div class="heads-up">HeadsUp</div>
+<div id="countdown" class="fade-in">10d 5h 30m 15s</div> <!-- Added id="countdown" -->
+<div class="stars">
+  <!-- Generating stars dynamically with JavaScript -->
+</div>
+
+<div class="sun-moon sun">
+  <div class="eye left-eye"></div>
+  <div class="eye right-eye"></div>
+</div>
+
+<div class="sun-moon moon">
+  <div class="eye left-eye"></div>
+  <div class="eye right-eye"></div>
+</div>
+
+<script>
+  // Set the date and time to countdown to
+  const countdownDate = new Date("2024-09-14T17:00:00").getTime();
+
+  // Update the countdown every second
+  const countdown = setInterval(function() {
+    // Get the current date and time
+    const now = new Date().getTime();
+
+    // Calculate the time remaining
+    const distance = countdownDate - now;
+
+    // Calculate days, hours, minutes, and seconds
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    // Display the countdown
+    document.getElementById("countdown").innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+    // If the countdown is over, display a message and show moon/sun, stars
+    if (distance < 0) {
+      clearInterval(countdown);
+      document.getElementById("countdown").innerHTML = "EXPIRED";
+      // Show the countdown, moon/sun, and stars after the countdown is finished
+      document.getElementById('countdown').classList.add('visible');
+      document.querySelector('.sun').classList.add('visible');
+      document.querySelector('.moon').classList.add('visible');
+      document.querySelector('.stars').classList.add('visible');
+    }
+
+    // Change background color based on time of the day
+    const currentHour = new Date().getHours();
+    const body = document.body;
+    if (currentHour >= 6 && currentHour < 18) {
+      // Daytime
+      body.className = "day";
+      document.querySelector('.sun').style.display = 'block';
+      document.querySelector('.moon').style.display = 'none';
+    } else {
+      // Nighttime
+      body.className = "night";
+      document.querySelector('.sun').style.display = 'none';
+      document.querySelector('.moon').style.display = 'block';
+    }
+  }, 1000);
+
+  // Function to control the blinking animation
+  function blinkEyes() {
+    const moonEyes = document.querySelectorAll('.moon .eye');
+    const sunEyes = document.querySelectorAll('.sun .eye');
+
+    // Toggle blink class for moon eyes
+    moonEyes.forEach(eye => eye.classList.toggle('blink'));
+
+    // Toggle blink class for sun eyes
+    sunEyes.forEach(eye => eye.classList.toggle('blink'));
+  }
+
+  // Call the blinking function initially and repeatedly every 2 to 7 seconds
+  setInterval(blinkEyes, Math.random() * 5000 + 2000);
+
+  // Dynamically generate stars
+  const starsContainer = document.querySelector('.stars');
+  for (let i = 0; i < 50; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    const size = Math.random() * 3;
+    const positionX = Math.random() * 100;
+    const positionY = Math.random() * 100;
+    const animationDuration = Math.random() * 2 + 1;
+    star.style.width = `${size}px`;
+    star.style.height = `${size}px`;
+    star.style.top = `${positionY}%`;
+    star.style.left = `${positionX}%`;
+    star.style.animationDuration = `${animationDuration}s`;
+    starsContainer.appendChild(star);
+  }
+
+  // Function to throw sparkles
+  function throwSparkles(event) {
+    const sparkleContainer = document.createElement('div');
+    sparkleContainer.className = 'sparkles-container';
+
+    for (let i = 0; i < 30; i++) {
+      const sparkle = document.createElement('div');
+      sparkle.className = 'sparkle';
+      const size = Math.random() * 10;
+      const positionX = event.clientX + Math.random() * 20 - 10;
+      const positionY = event.clientY + Math.random() * 20 - 10;
+      sparkle.style.width = `${size}px`;
+      sparkle.style.height = `${size}px`;
+      sparkle.style.top = `${positionY}px`;
+      sparkle.style.left = `${positionX}px`;
+      sparkleContainer.appendChild(sparkle);
+    }
+
+    document.body.appendChild(sparkleContainer);
+
+    // Remove sparkles after some time
+    setTimeout(function() {
+      document.body.removeChild(sparkleContainer);
+    }, 2000);
+  }
+
+  // Event listeners for throwing sparkles on click of sun or moon
+  document.querySelector('.sun').addEventListener('click', throwSparkles);
+  document.querySelector('.moon').addEventListener('click', throwSparkles);
+
+  // Show "Not Yet" on click of countdown
+  document.getElementById('countdown').addEventListener('click', function() {
+    alert('Not Yet');
+  });
+
+  // Show the countdown after a delay
+  setTimeout(function() {
+    document.getElementById('countdown').classList.add('visible');
+  }, 3000); // 3 seconds delay for the fade-out effect of "HeadsUp"
+</script>
+</body>
+</html>
